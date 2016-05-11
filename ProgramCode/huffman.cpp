@@ -1,31 +1,32 @@
 #include "huffman.h"
 
-Huffman::Huffman(string encodeThis)
+Huffman::Huffman(QString encodeThis)
 //Constructor which also does the encoding
 {
 	originalStr = encodeThis;	//Store original string
 
 	//GET FREQUENCIES=====================================================
-	vector<pair<string,int> > lettFreqs;	//Vector of letter frequencies
+	vector<pair<QString,int> > lettFreqs;	//Vector of letter frequencies
 
 	//Loop until encodeThis is empty
 	while (encodeThis != "")
 	{
-		string current = encodeThis.substr(0,1);
+		QString current = encodeThis.at(0);
 		int freq = 0;
+
 		//Iterate through encodeThis
 		for (int x = 0; x < (int)encodeThis.size(); x++)
 		{
 			//If a matching letter is found, delete it and count it
-			if (current == encodeThis.substr(x,1))
+			if (current == encodeThis.at(x))
 			{
 				freq++;
-				encodeThis.erase(encodeThis.begin() + x);
+				encodeThis.remove(x,1);
 				x--;
 			}
 		}
 		//Create a pair between current and freq, and push into lettFreqs
-		pair<string,int> freqPair = make_pair(current,freq);
+		pair<QString,int> freqPair = make_pair(current,freq);
 		lettFreqs.push_back(freqPair);
 	}
 	//BUILD TREE==========================================================
@@ -118,7 +119,7 @@ Huffman::Huffman(string encodeThis)
 	}
 	//GENERATE PRINTABLE TREE=============================================
 	vector<starNode> sortedResults = results;	//Copy of results vect
-	string curCode;								//Holds current HuffCode
+	QString curCode;							//Holds current HuffCode
 	BinaryTree *ptr;							//Tree pointer
 	BinaryTree *node = new BinaryTree;			//Tree node
 
@@ -191,7 +192,7 @@ Huffman::Huffman(string encodeThis)
 				}
 			}
 			//Delete the first character
-			curCode.erase(curCode.begin());
+			curCode.remove(0,1);
 		}
 	}
 }
@@ -200,102 +201,130 @@ Huffman::~Huffman()
 //Destructor
 {deleteTree(root);}
 
-void Huffman::printHuffCodes() const
-//Prints out all Huffman Code for all letters
+//void Huffman::printHuffCodes() const
+////Prints out all Huffman Code for all letters
+//{
+//	//Display results
+//	for (int x = 0; x < (int)results.size(); x++)
+//	{
+//		//Only print non-internal nodes
+//		if (!results.at(x).star)
+//		{
+//			cout << "(" <<  results[x].data << ") = "
+//				 << results[x].code << endl;
+//		}
+//	}
+//}
+
+QString Huffman::getEncoding() const
+//Returns encoded string
 {
-	//Display results
-	for (int x = 0; x < (int)results.size(); x++)
-	{
-		//Only print non-internal nodes
-		if (!results.at(x).star)
-		{
-			cout << "(" <<  results[x].data << ") = "
-				 << results[x].code << endl;
-		}
-	}
+    QString encodeThis = originalStr;
+    QString returnThis = "";
+
+    //Loop until encodeThis is empty
+    while (encodeThis != "")
+    {
+        //Current is first letter of original
+        QString current = encodeThis.at(0);
+
+        //Pop the front off the original
+        encodeThis.remove(0,1);
+
+        //Search results for current
+        for (int x = 0; x < (int)results.size(); x++)
+        {
+            if (current == results[x].data)
+            {
+                returnThis.append(results[x].code);
+                x = results.size();
+            }
+        }
+    }
+    return returnThis;
 }
 
-void Huffman::generateEncoding(string fileName)
-//Outputs encoding to specified text file
-{
-	string encodeThis = originalStr;
-	string returnThis = "";
-	ofstream fout;
-	fout.open(fileName.c_str());
+//void Huffman::generateEncoding(QString fileName)
+////Outputs encoding to specified text file
+//{
+//	QString encodeThis = originalStr;
+//	QString returnThis = "";
+//	ofstream fout;
+//	fout.open(fileName.c_str());
 
-	//Loop until encodeThis is empty
-	while (encodeThis != "")
-	{
-		//Current is first letter of original
-		string current = encodeThis.substr(0,1);
+//	//Loop until encodeThis is empty
+//	while (encodeThis != "")
+//	{
+//		//Current is first letter of original
+//		QString current = encodeThis.at(0);
 
-		//Pop the front off the original
-		encodeThis.erase(encodeThis.begin());
+//		//Pop the front off the original
+//		encodeThis.remove(0,1);
 
-		//Search results for current
-		for (int x = 0; x < (int)results.size(); x++)
-		{
-			if (current == results[x].data)
-			{
-				fout << results[x].code;
-				x = results.size();
-			}
-		}
-	}
-	fout.close();
-}
+//		//Search results for current
+//		for (int x = 0; x < (int)results.size(); x++)
+//		{
+//			if (current == results[x].data)
+//			{
+//				fout << results[x].code;
+//				x = results.size();
+//			}
+//		}
+//	}
+//	fout.close();
+//}
 
-void Huffman::decodeFile(string iFile,string oFile)
-//Decodes a Huffman encoded file and exports it to another text file
-{
-	ifstream fin(iFile.c_str());
-	ofstream fout;
-	BinaryTree *cursor = root;
-	char c;
+//void Huffman::decodeFile(QString iFile,QString oFile)
+////Decodes a Huffman encoded file and exports it to another text file
+//{
+//	ifstream fin(iFile.c_str());
+//	ofstream fout;
+//	BinaryTree *cursor = root;
+//	char c;
 
-	//Open output file
-	fout.open(oFile.c_str());
+//	//Open output file
+//	fout.open(oFile.c_str());
 
-	//Read one char at a time from input file
-	while (fin.get(c))
-	{
-		//If c = 0 go left
-		if (c == '0')
-		{
-			cursor = cursor->left;
-		}
-		//Otherwise go right
-		if (c == '1')
-		{
-			cursor = cursor->right;
-		}
-		//If cursor has no children
-		if (cursor->right == NULL && cursor->left == NULL)
-		{
-			//Write to output and reset cursor
-			fout << cursor->data;
-			cursor = root;
-		}
-	}
-	//Close files
-	fin.close();
-	fout.close();
-}
+//	//Read one char at a time from input file
+//	while (fin.get(c))
+//	{
+//		//If c = 0 go left
+//		if (c == '0')
+//		{
+//			cursor = cursor->left;
+//		}
+//		//Otherwise go right
+//		if (c == '1')
+//		{
+//			cursor = cursor->right;
+//		}
+//		//If cursor has no children
+//		if (cursor->right == NULL && cursor->left == NULL)
+//		{
+//			//Write to output and reset cursor
+//			fout << cursor->data;
+//			cursor = root;
+//		}
+//	}
+//	//Close files
+//	fin.close();
+//	fout.close();
+//}
 
-void Huffman::printFreqs() const
-//Print frequencies of every character
-{
-	//Loop through results
-	for (int x = 0; x < (int)results.size(); x++)
-	{
-		//Only print external nodes
-		if (!results[x].star)
-		{
-			cout << "[" << results[x].data << "] x " << results[x].freq
-				 << endl;
-		}
-	}
-}
+//void Huffman::printFreqs() const
+////Print frequencies of every character
+//{
+//	//Loop through results
+//	for (int x = 0; x < (int)results.size(); x++)
+//	{
+//		//Only print external nodes
+//		if (!results[x].star)
+//		{
+//			cout << "[" << results[x].data << "] x " << results[x].freq
+//				 << endl;
+//		}
+//	}
+//}
 
 void Huffman::deleteTree(BinaryTree *node)
 //Deletes printable tree recursively
@@ -312,31 +341,31 @@ void Huffman::deleteTree(BinaryTree *node)
 	delete node;
 }
 
-void Huffman::recurTree(BinaryTree *cursor, int spaces)
-//Recursive BST tree printing method
-{
-	//If cursor isn't null
-	if (cursor != NULL)
-	{
-		//Recur
-		recurTree(cursor->right, spaces + 3);
+//void Huffman::recurTree(BinaryTree *cursor, int spaces)
+////Recursive BST tree printing method
+//{
+//	//If cursor isn't null
+//	if (cursor != NULL)
+//	{
+//		//Recur
+//		recurTree(cursor->right, spaces + 3);
 
-		//Loop through spaces
-		for (int i = 0; i < spaces; i++)
-		{
-			cout << ' ';
-		}
-		//Output like this if it's an internal node
-		if (cursor->data == "()")
-		{
-			cout << cursor->data << endl;
-		}
-		//Otherwise put brackets around the character
-		else
-		{
-			cout << "[" << cursor->data << "]\n";
-		}
-		//Recur
-		recurTree( cursor->left, spaces + 3 );
-	}
-}
+//		//Loop through spaces
+//		for (int i = 0; i < spaces; i++)
+//		{
+//			cout << ' ';
+//		}
+//		//Output like this if it's an internal node
+//		if (cursor->data == "()")
+//		{
+//			cout << cursor->data << endl;
+//		}
+//		//Otherwise put brackets around the character
+//		else
+//		{
+//			cout << "[" << cursor->data << "]\n";
+//		}
+//		//Recur
+//		recurTree( cursor->left, spaces + 3 );
+//	}
+//}
