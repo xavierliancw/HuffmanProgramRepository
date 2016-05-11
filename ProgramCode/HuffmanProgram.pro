@@ -13,8 +13,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        zgui.cpp
+        zgui.cpp \
+    txtgrabber.cpp \
+    huffman.cpp
 
-HEADERS  += zgui.h
+HEADERS  += zgui.h \
+    txtgrabber.h \
+    huffman.h
 
-FORMS    += zgui.ui
+FORMS    += zgui.ui \
+    txtgrabber.ui
+
+RESOURCES += \
+    Resources/imagedirectory.qrc
