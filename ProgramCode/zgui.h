@@ -6,6 +6,10 @@
 #include <QMovie>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTextStream>
+#include <QDebug>
+
+#include "huffman.h"
 
 namespace Ui {class zGui;}
 
@@ -27,6 +31,8 @@ private slots:
     void on_homeEncodeBt_clicked();
 
     void on_homeDecodeBt_clicked();
+
+    void on_homeImportBt_clicked();
 
 private:
     Ui::zGui *ui;

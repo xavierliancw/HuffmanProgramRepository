@@ -1,7 +1,7 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 #include <iostream>
-#include <string>
+#include <QString>
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -27,8 +27,8 @@ private:
 			freq = -1;
 			star = false;
 			code = "";
-		};
-		starNode(string inData, int inFreq, bool inStar)
+		}
+		starNode(QString inData, int inFreq, bool inStar)
 		{
 			data = inData;
 			freq = inFreq;
@@ -36,15 +36,15 @@ private:
 			code = "";
 		}
 		~starNode(){}
-		string data;
+		QString data;
 		int freq;
 		bool star;
-		string code;
+		QString code;
 		vector<starNode> children;
 	};
 	struct BinaryTree
 	{
-		string data;
+		QString data;
 		BinaryTree *left;
 		BinaryTree *right;
 	};
@@ -62,7 +62,7 @@ private:
 	                    const starNode &right)
 	    {return left.code < right.code;}
 	};
-	string originalStr;
+	QString originalStr;        //Original string
 	vector<starNode> results;	//Vector of Huffman Codes
 	vector<starNode> treeGen;	//Huffman Tree
 	BinaryTree *root;			//Printable tree
@@ -71,12 +71,14 @@ private:
 	void recurTree(BinaryTree *cursor, int spaces);
 
 public:
-	Huffman(string encodeThis);	//Generates HuffCode for encodeThis
+	Huffman(QString encodeThis);//Generates HuffCode for encodeThis
 	~Huffman();					//Destructor
 
 	void printHuffCodes() const;//Prints out all HuffCode for all letters
-	void generateEncoding(string fileName);	//Outputs encoding to txt file
-	void decodeFile(string iFile,string oFile);//Decodes an encoded file
+    QString getEncoding() const;//Returns encoded string
+
+//	void generateEncoding(QString fileName);//Outputs encoding to txt file
+	void decodeFile(QString iFile,QString oFile);//Decodes an encoded file
 	void printFreqs() const;//Prints frequencies of every character
 	void printTree() {recurTree(root,0);}//Prints out Huffman Tree
 };

@@ -36,13 +36,83 @@ void zGui::on_homeBackBt_clicked()
 {ui->stackWidg->setCurrentIndex(0);}
 
 void zGui::on_homeEncodeBt_clicked()
+//Encode the text area
 {
-    QString fileName = QFileDialog::getOpenFileName(this,tr("Open File"),
-                                                    "C://","Text File (*.txt)");
-    QMessageBox::information(this,tr("Title of msg box"),fileName);
+    //Clear out the text field
+    ui->homeResultsTE->clear();
+
+    //Move this to private and change how constructor works
+    Huffman encoder(ui->homeOrigTE->toPlainText());
+    ui->homeResultsTE->setPlainText(encoder.getEncoding());
+
+    //Update a UI label to tell user that this is encoded text
+    ui->homeResultLbl->setText("Encoded Text");
+
+    //Move the UI to show area of interest
+    ui->homeTabWdg->setCurrentIndex(1);
 }
 
 void zGui::on_homeDecodeBt_clicked()
 {
 
 }
+
+void zGui::on_homeImportBt_clicked()
+//Import a text file
+{
+    int proceed;    //User prompt answer
+
+    //Move the UI to show area of interest
+    ui->homeTabWdg->setCurrentIndex(0);
+
+    if (ui->homeOrigTE->toPlainText() != "")
+    {
+        proceed = QMessageBox::warning(this, tr("Warning"),
+                                       tr("Importing a text file "
+                                          "will overwrite "
+                                          "the current text.\n"
+                                          "Are you sure you want to "
+                                          "import?"),
+                                           QMessageBox::Yes
+                                           | QMessageBox::Cancel);
+    }
+    //If Yes was pressed of the field is empty, proceed
+    if (proceed == 16384
+        || ui->homeOrigTE->toPlainText() == "")
+    {
+        //Open a file browser
+        QString fileName = QFileDialog
+                ::getOpenFileName(this,tr("Open File"),
+                                  "C://","Text File (*.txt)");
+        //Clear the text edit
+        ui->homeOrigTE->clear();
+
+        //Validate the file
+        QFile file(fileName);
+        if(!file.open(QIODevice::ReadOnly))
+        {
+            QMessageBox::information(this, "File Error",
+                                     file.errorString());
+        }
+
+        //Import
+        QTextStream in(&file);
+        while(!in.atEnd())
+        {
+            QString line = in.readLine();
+            ui->homeOrigTE->setPlainText(line);
+        }
+        file.close();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
